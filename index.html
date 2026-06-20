@@ -1,0 +1,321 @@
+<html lang=ja><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<style>
+body {
+    background-color: #fffbee;
+    text-align: center;
+    font-family: "Yu Gothic", sans-serif;
+    margin: 0;
+    padding: 10px;
+}
+
+.statusBox {
+    border-radius: 15px;
+    padding: 8px;
+    margin: 8px 0;
+}
+
+.eatBox {
+    background-color: #ffeae6;
+}
+
+.feelBox {
+    background-color: #e6eeff;
+}
+
+.meter {
+    width: 40px;
+    height: auto;
+}
+
+#cat {
+    width: 180px;
+    height: auto;
+}
+
+h2 {
+    margin: 5px 0;
+    font-size: 20px;
+}
+
+h3 {
+    margin: 5px 0;
+}
+
+input[type="button"],
+button {
+    padding: 8px 15px;
+    margin: 5px;
+    border-radius: 15px;
+}
+
+.statusBox {
+    width: 380px;
+    margin: 10px auto;
+
+    background-color: white;
+
+    border: 2px solid #ddd;
+    border-radius: 15px;
+
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#catFood {
+    position: absolute;
+    width: 100px;
+    pointer-events: none;
+    display:none;
+}
+
+#Nekojarashi {
+    position: absolute;
+    width: 100px;
+    pointer-events: none;
+    display:none;
+}
+
+</style>
+</head><body>
+    
+<div id="nameScreen">
+    <h2>ネコの名前を決めてね</h2>
+    <input type="text" id="catNameInput" placeholder="ネコの名前">
+    <button id="startBtn">はじめる</button>
+     <h3 style="color: red;" id="namePopup"></h3>
+</div>
+
+<div id="gameScreen" style="display:none;">        
+        <div class="statusBox">
+            <h2>満腹度</h2>
+            <div id="eatmeters">
+                <img class="meter" src="2.png" style="width: 60px; height: auto;">
+                <img class="meter" src="2.png" style="width: 60px; height: auto;">
+                <img class="meter" src="2.png" style="width: 60px; height: auto;">
+                <img class="meter" src="2.png" style="width: 60px; height: auto;">
+                <img class="meter" src="2.png" style="width: 60px; height: auto;">
+            </div>
+        </div>
+
+    <div class="statusBox">
+        <h2>ご機嫌</h2>
+        <div id="feelmeters">
+            <img class="meter" src="2.png" style="width: 60px; height: auto;">
+            <img class="meter" src="2.png" style="width: 60px; height: auto;">
+            <img class="meter" src="2.png" style="width: 60px; height: auto;">
+            <img class="meter" src="2.png" style="width: 60px; height: auto;">
+            <img class="meter" src="2.png" style="width: 60px; height: auto;">
+        </div>
+    </div>
+
+    <h3 id="popup2">　　　</h3>
+
+    <img id="cat" src="cat.png" style="width: 300px; height: auto;">
+
+    <br>
+    <h2 id="catNameDisplay"></h2>
+    
+    <h3 id="popup"></h3>
+
+    <br>
+    <input type="button" id="eat" value="ごはん">
+    <input type="button" id="hangout" value="遊ぶ">
+    
+    <img id="catFood" src="22636562.png">
+    <img id="Nekojarashi" src="nekojarashi.png">
+</div>
+    
+
+<script>
+let savedName = localStorage.getItem("catName")
+let enjoying = Number(localStorage.getItem("enjoying")) ||0;
+let eating = Number(localStorage.getItem("eating")) || 0;
+
+if(savedName){
+    $("#nameScreen").hide()
+    $("#gameScreen").show()
+    $("#catNameDisplay").text(savedName)
+}
+
+$("#startBtn").on("click", function(){
+    let name = $("#catNameInput").val().trim();
+
+    if(name === ""){
+    $("#namePopup").text("名前を入力してね！");
+        return;
+    }
+
+    localStorage.setItem("catName", name);
+
+    $("#nameScreen").hide();
+    $("#gameScreen").show();
+
+    $("#catNameDisplay").text(name);
+});
+
+
+for(let i = 0; i < eating; i++){
+    $("#eatmeters .meter").eq(i).attr('src', '1.png');
+}
+
+for(let i = 0; i < enjoying; i++){
+    $("#feelmeters .meter").eq(i).attr('src', '1.png');
+}
+
+$("#eat").on("click", function(){
+    let catName = localStorage.getItem("catName");
+
+    if(eating >= 5){
+        $("#popup").text(catName + "はいっぱい食べて満足しているよ！");
+        return;
+    }
+
+    $("#catFood").show();
+
+    $(document).off("mousemove.food");
+
+    $(document).on("mousemove.food", function(e){
+        $("#catFood").css({
+            left: e.pageX - 50 + "px",
+            top: e.pageY - 50 + "px"
+        });
+    });
+    $("#popup2").text("キャットフードを" + catName + "の前にもっていこう！")
+
+});
+
+$("#hangout").on("click", function(){
+    let catName = localStorage.getItem("catName");
+
+    if(enjoying >= 5){
+        $("#popup").text(catName + "はたくさん遊んで満足しているよ！");
+        return;
+    }
+
+    $("#Nekojarashi").show();
+
+    $(document).off("mousemove.enjoy");
+
+    $(document).on("mousemove.enjoy", function(e){
+        $("#Nekojarashi").css({
+            left: e.pageX - 50 + "px",
+            top: e.pageY - 50 + "px"
+        });
+    });
+    
+    $("#popup2").text("ねこじゃらしを" + catName + "の前にもっていこう！")
+
+});
+
+setInterval(function(){
+     let catName = localStorage.getItem("catName");
+    if(eating > 0){
+        $("#eatmeters .meter").eq(eating - 1).attr('src', '2.png');
+        eating--;
+        
+        localStorage.setItem("eating", eating);
+        
+        if(eating == 0){
+            $("#popup").text(catName + "はおなかがすいているよ！");
+            $("#cat").attr("src", "tired.png");
+        }else if(eating <= 3){
+        $("#cat").attr("src", "cat.png")
+    }
+    }
+}, 30000);
+
+setInterval(function(){
+     let catName = localStorage.getItem("catName");
+
+    if(enjoying > 0){
+        $("#feelmeters .meter").eq(enjoying - 1)
+            .attr('src', '2.png');
+
+        enjoying--;
+
+        localStorage.setItem("enjoying", enjoying);
+
+        if(enjoying == 0){
+            $("#popup").text(catName + "は退屈そうだよ！");
+            $("#cat").attr("src", "bored.png");
+        }else if(enjoying <= 3){
+            $("#cat").attr("src", "cat.png");
+        }
+    }
+}, 30000);
+
+$("#cat").on("click", function(){
+
+    if(!$("#catFood").is(":visible")){
+        return;
+    }
+
+    $("#catFood").hide();
+    $(document).off("mousemove.food");
+
+    $("#eatmeters .meter").eq(eating).attr("src","1.png");
+    eating++;
+
+    localStorage.setItem("eating", eating);
+    $("#cat").attr("src", "a.png");
+    
+    $("#popup2").text("  ");
+
+    setTimeout(function(){
+        checkBalance();
+    }, 2000);
+});
+
+$("#cat").on("click", function(){
+
+    if(!$("#Nekojarashi").is(":visible")){
+        return;
+    }
+
+    $("#Nekojarashi").hide();
+    $(document).off("mousemove.enjoy");
+
+    $("#feelmeters .meter").eq(enjoying).attr("src","1.png");
+    enjoying++;
+
+    localStorage.setItem("enjoying", enjoying);
+    $("#cat").attr("src", "b.png");
+    
+    $("#popup2").text("  ");
+
+    setTimeout(function(){
+        checkBalance();
+    }, 2000);
+});
+
+function checkBalance(){
+
+    let s = eating - enjoying;
+
+    let catName = localStorage.getItem("catName");
+
+    if(s >= 3){
+        $("#popup").text(catName + "はちょっと食べ過ぎたみたい…遊んで運動をしよう！");
+        $("#cat").attr("src", "fat.png");
+
+    }else if(s <= -3){
+        $("#popup").text(catName + "は遊びすぎて疲れたみたい…ごはんを食べさせてあげよう！");
+        $("#cat").attr("src", "tired.png");
+
+    }else if(eating >= 4 && enjoying >= 4){
+        $("#popup").text("");
+        $("#cat").attr("src", "happy.png");
+
+    }else{
+        $("#popup").text("");
+        $("#cat").attr("src", "cat.png");
+    }
+}
+
+
+</script>
+
+</body></html>
+
